@@ -104,7 +104,6 @@ div button {
   align-items: center;
   justify-content: space-between;
   background: linear-gradient(to left,#7CBB91,#4E9C68,#7CBB91);
-
   border-radius: 3%;
 }
 
