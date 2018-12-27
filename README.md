@@ -4,7 +4,9 @@
 ```
 cp .env.example .env
 ```
-Replace the generic API key with your own
+Replace the generic API key in .env with your own
+
+####Install Node Modules
 
 ```
 npm install
