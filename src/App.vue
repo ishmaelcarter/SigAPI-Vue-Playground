@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <div>
-    {{api_key}}
       <button @click="USD_BTC">
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Dollar_sign_in_circle.svg">
         <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Chevron_right_font_awesome.svg">
