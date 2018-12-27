@@ -2,7 +2,7 @@
 
 ## Project setup
 ```
-cp .env.example. .env
+cp .env.example .env
 ```
 Replace the generic API key with your own
 
