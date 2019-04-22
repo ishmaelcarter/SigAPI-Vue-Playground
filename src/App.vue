@@ -1,36 +1,55 @@
 <template>
   <div id="app">
     <div>
-      <button @click="USD_BTC">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Dollar_sign_in_circle.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Chevron_right_font_awesome.svg">
-        <img width="50px" src="https://en.bitcoin.it/w/images/en/6/69/Btc-sans.png">
+        <button v-on:click="SEARCH_ALL">
+        get {{ this.offer_type }} offers
       </button>
-      <p>{{ btc }}</p>
+    </div>
+    <div v-if="offer_type == 'cruise'">
+      <label value="Supplier ID">Cruise Supplier: </label>
+      <select type="text" name="supplier" list="suppliername" v-model="supplier_id">
+        <option value="586">Oceania</option>
+        <option value="29">Regent</option>
+        <option value="26">Silversea</option>
+      </select>
     </div>
     <div>
-      <button @click="USD_ETH">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Dollar_sign_in_circle.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Chevron_right_font_awesome.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg">
-      </button>
-      <p>{{ eth }}</p>
+      <label value="Supplier ID">Offer Type: </label>
+      <select type="text" name="offer" list="offertype" v-model="offer_type">
+        <option value="cruise">Cruise</option>
+        <option value="tour">Tour</option>
+        <option value="hotel">Hotel</option>
+      </select>
     </div>
-    <div>
-      <button @click="EUR_BTC">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Euro_symbol_black.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Chevron_right_font_awesome.svg">
-        <img width="50px" src="https://en.bitcoin.it/w/images/en/6/69/Btc-sans.png">
-      </button>
-      <p>{{ eur_btc }}</p>
+    <div v-if="offer_type == 'cruise'">
+      <div v-for="offer in offers" :key="offer.id">
+        <div class="offers" v-if="offer.title">
+          <p class="title">{{ offer.title }}</p>
+          <p class="itinerary">{{ offer.itinerary_description }}</p>
+          <p class="depart">{{ offer.depart_day.replace('T00:00:00','') }}</p>
+          <p class="description">{{ offer.available_addons.replace(/&lt;[^>]+>/g, '') }}</p>
+          <p><a class="link" :href="offer.offer_link">See Offer</a></p>
+        </div>
+      </div>
     </div>
-    <div>
-      <button @click="EUR_ETH">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Euro_symbol_black.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Chevron_right_font_awesome.svg">
-        <img width="50px" src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg">
-      </button>
-      <p>{{ eur_eth }}</p>
+    <div v-if="offer_type == 'hotel'">
+      <div v-for="offer in offers" :key="offer.id">
+        <div class="offers" v-if="offer.title">
+          <p class="title">{{ offer.title }}</p>
+          <p class="itinerary">{{ offer.itinerary_description }}</p>
+          <p><a class="link" :href="offer.offer_link">See Offer</a></p>
+        </div>
+      </div>
+    </div>
+    <div v-if="offer_type == 'tour'">
+      <div v-for="offer in offers" :key="offer.id">
+        <div class="offers" v-if="offer.title">
+          <p class="title">{{ offer.title }}</p>
+          <p class="depart">{{ offer.drop_day.replace('T00:00:00','') }}</p>
+          <p class="itinerary">{{ offer.itinerary_description }}</p>
+          <p><a class="link" :href="offer.offer_link">See Offer</a></p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -45,32 +64,18 @@ export default {
   },
   data () {
     return {
-      btc: null,
-      eth: null,
-      eur_btc: null,
-      eur_eth: null
+      offers: "No Offers to Show",
+      supplier_id: "0",
+      url: "https://api.signaturetravelnetwork.com/sws/v1/offers",
+      offer_type: "cruise"
     }
   },
   methods: {
-    USD_BTC: function(){
+    SEARCH_ALL: function(){
     axios
-      .get("https://rest.coinapi.io/v1/exchangerate/BTC/USD?apikey=" + process.env.VUE_APP_API_KEY)
-      .then(response => (this.btc = response.data.rate))
-    },
-    USD_ETH: function(){
-    axios
-      .get("https://rest.coinapi.io/v1/exchangerate/ETH/USD?apikey=" + process.env.VUE_APP_API_KEY)
-      .then(response => (this.eth = response.data.rate))
-    },
-    EUR_BTC: function(){
-    axios
-      .get("https://rest.coinapi.io/v1/exchangerate/BTC/EUR?apikey=" + process.env.VUE_APP_API_KEY)
-      .then(response => (this.eur_btc = response.data.rate))
-    },
-    EUR_ETH: function(){
-    axios
-      .get("https://rest.coinapi.io/v1/exchangerate/ETH/EUR?apikey=" + process.env.VUE_APP_API_KEY)
-      .then(response => (this.eur_eth = response.data.rate))
+      .get(this.url + "/" + this.offer_type + "/?max_return=200&api_key=" + process.env.VUE_APP_API_KEY)
+      .then(response => (this.offers = response.data.offers))
+      .catch(error => (this.offers = error))
     }
   }
   }
@@ -88,22 +93,24 @@ export default {
 }
 
 #app div {
-  border: 3px solid #105D2A;
   border-radius: 3%;
-  width: 25%;
+  width: 100%;
   padding: 0;
   margin: auto;
   margin-bottom: 1%;
 }
 
 div button {
-  display: flex;
-  width: 100%;
+  width: 12.5%;
+  padding: 1% 0;
+  font-size: 100%;
   margin: auto;
   align-items: center;
   justify-content: space-between;
+  text-align: center;
   background: linear-gradient(to left,#7CBB91,#4E9C68,#7CBB91);
   border-radius: 3%;
+  text-transform: uppercase;
 }
 
 div button img {
@@ -113,7 +120,16 @@ div button img {
 }
 
 div p {
-  font-size: 200%;
+  font-size: 100%;
   font-weight: bold;
+}
+
+.offers {
+  border: 1px solid black;
+  display: flex;
+}
+
+.offers p{
+  padding: 0 .5%;
 }
 </style>
