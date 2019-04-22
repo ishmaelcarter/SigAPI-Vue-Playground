@@ -1,4 +1,4 @@
-# vueCryptoTicker
+# Sig API/Vue Playground
 
 ## Project setup
 ```
