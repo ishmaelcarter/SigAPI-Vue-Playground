@@ -1,5 +1,14 @@
 <template>
   <div id="app">
+  <button v-on:click="GET_AGENTS">get all agents</button>
+  <div v-if="Array.isArray(agents)">
+    <div v-for="agent in agents" :key="agent.id">
+      <div v-if="agent.title">
+        <a class="link" :href="agent.link">{{agent.title.rendered}}</a>
+        <img :href="agent._links['wp:attachment']['0'].href">
+      </div>
+    </div>
+  </div>
     <div>
         <button v-on:click="SEARCH_ALL">
         get {{ this.offer_type }} offers
@@ -15,13 +24,14 @@
     </div>
     <div>
       <label value="Supplier ID">Offer Type: </label>
-      <select type="text" name="offer" list="offertype" v-model="offer_type">
+      <select type="text" name="offer" list="offertype" v-model.lazy="offer_type">
         <option value="cruise">Cruise</option>
         <option value="tour">Tour</option>
         <option value="hotel">Hotel</option>
       </select>
     </div>
     <div v-if="offer_type == 'cruise'">
+      <h2>Cruise Search</h2>
       <div v-for="offer in offers" :key="offer.id">
         <div class="offers" v-if="offer.title">
           <p class="title">{{ offer.title }}</p>
@@ -33,6 +43,7 @@
       </div>
     </div>
     <div v-if="offer_type == 'hotel'">
+      <h2>Hotel Search</h2>
       <div v-for="offer in offers" :key="offer.id">
         <div class="offers" v-if="offer.title">
           <p class="title">{{ offer.title }}</p>
@@ -42,6 +53,7 @@
       </div>
     </div>
     <div v-if="offer_type == 'tour'">
+      <h2>Tour Search</h2>
       <div v-for="offer in offers" :key="offer.id">
         <div class="offers" v-if="offer.title">
           <p class="title">{{ offer.title }}</p>
@@ -67,15 +79,31 @@ export default {
       offers: "No Offers to Show",
       supplier_id: "0",
       url: "https://api.signaturetravelnetwork.com/sws/v1/offers",
-      offer_type: "cruise"
+      offer_type: "cruise",
+      agents: "No Agents to Show"
     }
+  },
+  mounted () {
+
   },
   methods: {
     SEARCH_ALL: function(){
     axios
-      .get(this.url + "/" + this.offer_type + "/?max_return=200&api_key=" + process.env.VUE_APP_API_KEY)
+      .get(this.url + "/" + this.offer_type + "/?max_return=200", {
+        params: {
+          api_key: process.env.VUE_APP_API_KEY
+        }
+      })
       .then(response => (this.offers = response.data.offers))
       .catch(error => (this.offers = error))
+    },
+    GET_AGENTS: function(){
+      axios
+        .get("http://bvtravel.com/wp-json/wp/v2/advisor", {
+
+        })
+        .then(response => (this.agents = response.data))
+        .catch(error => (this.agents = error))
     }
   }
   }
